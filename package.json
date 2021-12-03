@@ -2,9 +2,25 @@
   "name": "be-vigilant",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "be-vigilant.js",
+  "module": "be-vigilant.js",
+  "exports": {
+    ".": "./be-vigilant.js",
+    "./be-vigilant.js": "./be-vigilant.js"
+  },
+  "files": [
+    "*.*"
+  ],
+  "types": "types.d.ts",
+  "keywords": [
+    "web-components",
+    "custom-elements",
+    "xslt"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package-check": "package-check",
+    "serve": "node node_modules/xtal-test/serve.js"
   },
   "dependencies": {
     "be-decorated": "0.0.43",
