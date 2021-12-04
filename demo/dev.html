@@ -7,6 +7,20 @@
     <title>Document</title>
 </head>
 <body>
+    <div id=test be-vigilant=my-event-name></div>
+    <script>
+        test.addEventListener('my-event-name', e => {
+            console.log(e.detail);
+        });
+    </script>
+    <button onclick="addChild()">addChild</button>
+    <script>
+        function addChild() {
+            var div = document.createElement('div');
+            div.innerHTML = '<div>child</div>';
+            test.appendChild(div);
+        }
+    </script>
     <script type=importmap>
         {
             "imports": {

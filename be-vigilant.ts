@@ -16,7 +16,11 @@ export class BeVigilantController implements BeVigilantActions{
     }
 
     callback = (mutationList: MutationRecord[], observer: MutationObserver) => {
-        this.proxy.mutationList = mutationList;
+        this.#target!.dispatchEvent(new CustomEvent(this.asType, {
+            detail: {
+                mutationList,
+            }
+        }));
     }
 
     removeObserver({}: this){
@@ -29,7 +33,6 @@ export class BeVigilantController implements BeVigilantActions{
 
     finale(proxy: Element & BeVigilantVirtualProps, target: Element, beDecor: BeDecoratedProps){
         this.removeObserver(this);
-        this.proxy.mutationList = undefined;
         this.#target = undefined;
     }
 }
@@ -50,8 +53,17 @@ define<BeVigilantProps & BeDecoratedProps<BeVigilantProps, BeVigilantActions>, B
             ifWantsToBe,
             upgrade,
             intro: 'intro',
-            virtualProps: ['subtree', 'attributes', 'characterData', 'childList', 'mutationList'],
-            emitEvents: ['mutationList'],
+            virtualProps: ['subtree', 'attributes', 'characterData', 'childList', 'asType'],
+            primaryProp: 'asType',
+            proxyPropDefaults:{
+                childList: true,
+            }
+        },
+        actions:{
+            addObserver: {
+                ifAllOf: ['asType'],
+                ifKeyIn: ['subtree', 'attributes', 'characterData', 'childList'],
+            }
         }
     },
     complexPropDefaults:{

@@ -1,7 +1,7 @@
 import {BeDecoratedProps} from 'be-decorated/types';
 
 export interface BeVigilantVirtualProps extends MutationObserverInit {
-    mutationList: MutationRecord[] | undefined;
+    asType: string;
 }
 
 export interface BeVigilantProps extends BeVigilantVirtualProps {

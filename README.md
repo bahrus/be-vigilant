@@ -1,24 +1,24 @@
-# be-vigilant [TODO]
+# be-vigilant
 
-Add mutation observer to element.  Notify host, self or upsearched elements via [be-noticed](https://github.com/bahrus/be-noticed) binding syntax.
+Add mutation observer to element.
+
+Use case:  Many UI libraries are built around communicating between elements via events.  be-vigilant translates mutation changes into events.
 
 ```html
-<div be-vigilant='{
-        "childList": true,
-        "mutationMatchTransformations": {
-            "*": {
-                ":host": {},
-                "self": {},
-
-            }
-        }
-}'>
+<div be-vigilant=my-event-name>
 ...
 </div>
 ```
 
-mmt abbrev for mutationMatchTransformations
+Event my-event-name is fired when the direct children of the div element change.
 
-Shares code with be-transformative.
+To fine tune how the mutation observer is configured:
 
-Gives us ":has" functionality among other things.
+```html
+<div be-vigilant='{
+    "subtree": true,
+    "asType": "my-event-name"
+}'>
+...
+</div>
+```
