@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id=test be-vigilant=my-event-name></div>
+    <script>
+        test.addEventListener('my-event-name', e => {
+            console.log(e.detail);
+        });
+    </script>
+    <button onclick="addChild()">addChild</button>
+    <script>
+        function addChild() {
+            var div = document.createElement('div');
+            div.innerHTML = '<div>child</div>';
+            test.appendChild(div);
+        }
+    </script>
+    <script type=module>
+        import 'https://cdn.skypack.dev/be-vigilant';
+    </script>
+</body>
+</html>
