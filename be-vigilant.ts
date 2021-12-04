@@ -13,6 +13,7 @@ export class BeVigilantController implements BeVigilantActions{
         this.removeObserver(this);
         this.#mutationObserver = new MutationObserver(this.callback);
         this.#mutationObserver.observe(this.#target!, this as MutationObserverInit);
+        this.callback([], this.#mutationObserver);//notify subscribers that the observer is ready
     }
 
     callback = (mutationList: MutationRecord[], observer: MutationObserver) => {

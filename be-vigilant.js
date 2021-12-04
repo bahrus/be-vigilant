@@ -10,6 +10,7 @@ export class BeVigilantController {
         this.removeObserver(this);
         this.#mutationObserver = new MutationObserver(this.callback);
         this.#mutationObserver.observe(this.#target, this);
+        this.callback([], this.#mutationObserver); //notify subscribers that the observer is ready
     }
     callback = (mutationList, observer) => {
         this.#target.dispatchEvent(new CustomEvent(this.asType, {
