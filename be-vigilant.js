@@ -3,8 +3,21 @@ import { register } from 'be-hive/register.js';
 export class BeVigilantController {
     #target;
     #mutationObserver;
+    attachBehiviors() {
+        const beHive = this.#target.getRootNode().querySelector('be-hive');
+        if (beHive === null)
+            return;
+        const beDecoratedProps = Array.from(beHive.children);
+        for (const beDecor of beDecoratedProps) {
+            const matches = Array.from(this.#target.querySelectorAll(`${beDecor.upgrade}[be-${beDecor.ifWantsToBe}],${beDecor.upgrade}[data-be-${beDecor.ifWantsToBe}]`));
+            for (const match of matches) {
+                beDecor.newTarget = match;
+            }
+        }
+    }
     intro(proxy, target, beDecor) {
         this.#target = target;
+        this.attachBehiviors();
     }
     addObserver({}) {
         this.removeObserver(this);
@@ -13,6 +26,25 @@ export class BeVigilantController {
         this.callback([], this.#mutationObserver); //notify subscribers that the observer is ready
     }
     callback = (mutationList, observer) => {
+        for (const mut of mutationList) {
+            const addedNodes = Array.from(mut.addedNodes);
+            let foundBeHiveElement = false;
+            for (const addedNode of addedNodes) {
+                if (addedNode.nodeType === Node.ELEMENT_NODE) {
+                    const attrs = addedNode.attributes;
+                    for (let i = 0, ii = attrs.length; i < ii; i++) {
+                        const attr = attrs[i];
+                        if (attr.name.startsWith('be-')) {
+                            foundBeHiveElement = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (foundBeHiveElement) {
+                this.attachBehiviors();
+            }
+        }
         this.#target.dispatchEvent(new CustomEvent(this.asType, {
             detail: {
                 mutationList,
@@ -45,6 +77,7 @@ define({
             primaryProp: 'asType',
             proxyPropDefaults: {
                 childList: true,
+                asType: 'be-vigilant-changed',
             }
         },
         actions: {

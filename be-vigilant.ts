@@ -1,12 +1,28 @@
-import {define, BeDecoratedProps} from 'be-decorated/be-decorated.js';
+import {define, BeDecoratedProps } from 'be-decorated/be-decorated.js';
 import {BeVigilantActions, BeVigilantProps, BeVigilantVirtualProps} from './types';
 import {register} from 'be-hive/register.js';
+
 
 export class BeVigilantController implements BeVigilantActions{
     #target: Element | undefined;
     #mutationObserver: MutationObserver | undefined;
+
+    attachBehiviors(){
+        const beHive = (this.#target!.getRootNode() as DocumentFragment).querySelector('be-hive');
+        if(beHive === null) return;
+        const beDecoratedProps = Array.from(beHive.children) as any as BeDecoratedProps[];
+        for(const beDecor of beDecoratedProps){
+            const matches = Array.from(this.#target!.querySelectorAll(`${beDecor.upgrade}[be-${beDecor.ifWantsToBe}],${beDecor.upgrade}[data-be-${beDecor.ifWantsToBe}]`));
+            for(const match of matches){
+                beDecor.newTarget = match;
+            }
+        }
+    }
+
+    
     intro(proxy: Element & BeVigilantVirtualProps, target: Element, beDecor: BeDecoratedProps){
         this.#target = target;
+        this.attachBehiviors();
     }
 
     addObserver({}: this){
@@ -17,6 +33,25 @@ export class BeVigilantController implements BeVigilantActions{
     }
 
     callback = (mutationList: MutationRecord[], observer: MutationObserver) => {
+        for(const mut of mutationList){
+            const addedNodes = Array.from(mut.addedNodes);
+            let foundBeHiveElement = false;
+            for(const addedNode of addedNodes){
+                if(addedNode.nodeType === Node.ELEMENT_NODE){
+                    const attrs = (addedNode as Element).attributes;
+                    for(let i = 0, ii = attrs.length; i < ii; i++){
+                        const attr = attrs[i];
+                        if(attr.name.startsWith('be-')){
+                            foundBeHiveElement = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if(foundBeHiveElement){
+                this.attachBehiviors();
+            }
+        }
         this.#target!.dispatchEvent(new CustomEvent(this.asType, {
             detail: {
                 mutationList,
@@ -58,6 +93,7 @@ define<BeVigilantProps & BeDecoratedProps<BeVigilantProps, BeVigilantActions>, B
             primaryProp: 'asType',
             proxyPropDefaults:{
                 childList: true,
+                asType: 'be-vigilant-changed',
             }
         },
         actions:{
