@@ -19,8 +19,8 @@ export class BeVigilantController implements BeVigilantActions{
             for(const match of matches){
                 const data = match.hasAttribute(`data-be-${beDecor.ifWantsToBe}`) ? 'data-' : '';
                 const attrVal = match.getAttribute(`${data}be-${beDecor.ifWantsToBe}`);
-                el.setAttribute(`${data}is-${ifWantsToBe}`, attrVal!);
-                el.removeAttribute(`${data}be-${ifWantsToBe}`);
+                match.setAttribute(`${data}is-${ifWantsToBe}`, attrVal!);
+                match.removeAttribute(`${data}be-${ifWantsToBe}`);
                 beDecor.newTarget = match;
             }
         }
