@@ -7,13 +7,20 @@ export class BeVigilantController implements BeVigilantActions{
     #target: Element | undefined;
     #mutationObserver: MutationObserver | undefined;
 
-    attachBehiviors(){
+    async attachBehiviors(){
         const beHive = (this.#target!.getRootNode() as DocumentFragment).querySelector('be-hive');
         if(beHive === null) return;
         const beDecoratedProps = Array.from(beHive.children) as any as BeDecoratedProps[];
         for(const beDecor of beDecoratedProps){
+            const el = beDecor as any as Element;
+            await customElements.whenDefined(el.localName);
             const matches = Array.from(this.#target!.querySelectorAll(`${beDecor.upgrade}[be-${beDecor.ifWantsToBe}],${beDecor.upgrade}[data-be-${beDecor.ifWantsToBe}]`));
+            
             for(const match of matches){
+                const data = match.hasAttribute(`data-be-${beDecor.ifWantsToBe}`) ? 'data-' : '';
+                const attrVal = match.getAttribute(`${data}be-${beDecor.ifWantsToBe}`);
+                el.setAttribute(`${data}is-${ifWantsToBe}`, attrVal!);
+                el.removeAttribute(`${data}be-${ifWantsToBe}`);
                 beDecor.newTarget = match;
             }
         }
@@ -41,7 +48,7 @@ export class BeVigilantController implements BeVigilantActions{
                     const attrs = (addedNode as Element).attributes;
                     for(let i = 0, ii = attrs.length; i < ii; i++){
                         const attr = attrs[i];
-                        if(attr.name.startsWith('be-')){
+                        if(attr.name.startsWith('be-') || attr.name.startsWith('data-be-')){
                             foundBeHiveElement = true;
                             break;
                         }
