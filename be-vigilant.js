@@ -15,8 +15,8 @@ export class BeVigilantController {
             for (const match of matches) {
                 const data = match.hasAttribute(`data-be-${beDecor.ifWantsToBe}`) ? 'data-' : '';
                 const attrVal = match.getAttribute(`${data}be-${beDecor.ifWantsToBe}`);
-                match.setAttribute(`${data}is-${ifWantsToBe}`, attrVal);
-                match.removeAttribute(`${data}be-${ifWantsToBe}`);
+                match.setAttribute(`${data}is-${beDecor.ifWantsToBe}`, attrVal);
+                match.removeAttribute(`${data}be-${beDecor.ifWantsToBe}`);
                 beDecor.newTarget = match;
             }
         }
