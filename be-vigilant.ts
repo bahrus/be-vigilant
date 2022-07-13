@@ -7,35 +7,16 @@ export class BeVigilantController implements BeVigilantActions{
     #target: Element | undefined;
     #mutationObserver: MutationObserver | undefined;
 
-    // async attachBehiviors(){
-    //     const beHive = (this.#target!.getRootNode() as DocumentFragment).querySelector('be-hive');
-    //     if(beHive === null) return;
-    //     const beDecoratedProps = Array.from(beHive.children) as any as BeDecoratedProps[];
-    //     for(const beDecor of beDecoratedProps){
-    //         const el = beDecor as any as Element;
-    //         await customElements.whenDefined(el.localName);
-    //         const matches = Array.from(this.#target!.querySelectorAll(`${beDecor.upgrade}[be-${beDecor.ifWantsToBe}],${beDecor.upgrade}[data-be-${beDecor.ifWantsToBe}]`));
-            
-    //         for(const match of matches){
-    //             const data = match.hasAttribute(`data-be-${beDecor.ifWantsToBe}`) ? 'data-' : '';
-    //             const attrVal = match.getAttribute(`${data}be-${beDecor.ifWantsToBe}`);
-    //             match.setAttribute(`${data}is-${beDecor.ifWantsToBe}`, attrVal!);
-    //             match.removeAttribute(`${data}be-${beDecor.ifWantsToBe}`);
-    //             beDecor.newTarget = match;
-    //         }
-    //     }
-    // }
-
     
     intro(proxy: Element & BeVigilantVirtualProps, target: Element, beDecor: BeDecoratedProps){
         this.#target = target;
-        //this.attachBehiviors();
     }
 
     async onWatchForBs(self: this) {
         const {attachBehiviors} = await import('./attachBehiviors.js');
         await attachBehiviors(this.#target!);
     }
+
 
     addObserver({}: this){
         this.removeObserver(this);
@@ -46,25 +27,24 @@ export class BeVigilantController implements BeVigilantActions{
 
     callback = async (mutationList: MutationRecord[], observer: MutationObserver) => {
         for(const mut of mutationList){
-            const addedNodes = Array.from(mut.addedNodes);
+            
             if(this.proxy.forBs){
-                let foundBeHiveElement = false;
-                for(const addedNode of addedNodes){
-                    if(addedNode.nodeType === Node.ELEMENT_NODE){
-                        const attrs = (addedNode as Element).attributes;
-                        for(let i = 0, ii = attrs.length; i < ii; i++){
-                            const attr = attrs[i];
-                            if(attr.name.startsWith('be-') || attr.name.startsWith('data-be-')){
-                                foundBeHiveElement = true;
-                                break;
-                            }
+                const {attachBehiviors} = await import('./attachBehiviors.js');
+                await attachBehiviors(this.#target!);
+            }
+            const {matchActions} = this;
+            if(matchActions){
+                const addedNodes = Array.from(mut.addedNodes) as Element[];
+                for(const node of addedNodes){
+                    if(!node.dispatchEvent) continue;
+                    for(const selector in matchActions){
+                        if(node.matches(selector)){
+                            const match = matchActions[selector];
+                            node.dispatchEvent(new CustomEvent(match.dispatchInfo, {
+
+                            }));
                         }
-    
                     }
-                }
-                if(foundBeHiveElement){
-                    const {attachBehiviors} = await import('./attachBehiviors.js');
-                    await attachBehiviors(this.#target!);
                 }
             }
 
@@ -76,6 +56,7 @@ export class BeVigilantController implements BeVigilantActions{
                 }
             }));
         }
+        
 
     }
 
@@ -118,7 +99,7 @@ define<BeVigilantProps & BeDecoratedProps<BeVigilantProps, BeVigilantActions>, B
         },
         actions:{
             addObserver: {
-                ifAllOf: ['dispatchInfo'],
+                ifAtLeastOneOf: ['dispatchInfo', 'matchActions', 'dispatchInfo'],
                 ifKeyIn: ['subtree', 'attributes', 'characterData', 'childList'],
             },
             onWatchForBs: 'forBs',

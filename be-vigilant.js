@@ -3,27 +3,12 @@ import { register } from 'be-hive/register.js';
 export class BeVigilantController {
     #target;
     #mutationObserver;
-    async attachBehiviors() {
-        const beHive = this.#target.getRootNode().querySelector('be-hive');
-        if (beHive === null)
-            return;
-        const beDecoratedProps = Array.from(beHive.children);
-        for (const beDecor of beDecoratedProps) {
-            const el = beDecor;
-            await customElements.whenDefined(el.localName);
-            const matches = Array.from(this.#target.querySelectorAll(`${beDecor.upgrade}[be-${beDecor.ifWantsToBe}],${beDecor.upgrade}[data-be-${beDecor.ifWantsToBe}]`));
-            for (const match of matches) {
-                const data = match.hasAttribute(`data-be-${beDecor.ifWantsToBe}`) ? 'data-' : '';
-                const attrVal = match.getAttribute(`${data}be-${beDecor.ifWantsToBe}`);
-                match.setAttribute(`${data}is-${beDecor.ifWantsToBe}`, attrVal);
-                match.removeAttribute(`${data}be-${beDecor.ifWantsToBe}`);
-                beDecor.newTarget = match;
-            }
-        }
-    }
     intro(proxy, target, beDecor) {
         this.#target = target;
-        this.attachBehiviors();
+    }
+    async onWatchForBs(self) {
+        const { attachBehiviors } = await import('./attachBehiviors.js');
+        await attachBehiviors(this.#target);
     }
     addObserver({}) {
         this.removeObserver(this);
@@ -31,31 +16,34 @@ export class BeVigilantController {
         this.#mutationObserver.observe(this.#target, this);
         this.callback([], this.#mutationObserver); //notify subscribers that the observer is ready
     }
-    callback = (mutationList, observer) => {
+    callback = async (mutationList, observer) => {
         for (const mut of mutationList) {
-            const addedNodes = Array.from(mut.addedNodes);
-            let foundBeHiveElement = false;
-            for (const addedNode of addedNodes) {
-                if (addedNode.nodeType === Node.ELEMENT_NODE) {
-                    const attrs = addedNode.attributes;
-                    for (let i = 0, ii = attrs.length; i < ii; i++) {
-                        const attr = attrs[i];
-                        if (attr.name.startsWith('be-') || attr.name.startsWith('data-be-')) {
-                            foundBeHiveElement = true;
-                            break;
+            if (this.proxy.forBs) {
+                const { attachBehiviors } = await import('./attachBehiviors.js');
+                await attachBehiviors(this.#target);
+            }
+            const { matchActions } = this;
+            if (matchActions) {
+                const addedNodes = Array.from(mut.addedNodes);
+                for (const node of addedNodes) {
+                    if (!node.dispatchEvent)
+                        continue;
+                    for (const selector in matchActions) {
+                        if (node.matches(selector)) {
+                            const match = matchActions[selector];
+                            node.dispatchEvent(new CustomEvent(match.dispatchInfo, {}));
                         }
                     }
                 }
             }
-            if (foundBeHiveElement) {
-                this.attachBehiviors();
-            }
         }
-        this.#target.dispatchEvent(new CustomEvent(this.asType, {
-            detail: {
-                mutationList,
-            }
-        }));
+        if (this.dispatchInfo) {
+            this.#target.dispatchEvent(new CustomEvent(this.dispatchInfo, {
+                detail: {
+                    mutationList,
+                }
+            }));
+        }
     };
     removeObserver({}) {
         if (!this.#mutationObserver) {
@@ -79,18 +67,19 @@ define({
             ifWantsToBe,
             upgrade,
             intro: 'intro',
-            virtualProps: ['subtree', 'attributes', 'characterData', 'childList', 'asType'],
+            virtualProps: ['subtree', 'attributes', 'characterData', 'childList', 'dispatchInfo', 'forBs', 'matchActions'],
             primaryProp: 'asType',
             proxyPropDefaults: {
                 childList: true,
-                asType: 'be-vigilant-changed',
+                dispatchInfo: 'be-vigilant-changed',
             }
         },
         actions: {
             addObserver: {
-                ifAllOf: ['asType'],
+                ifAtLeastOneOf: ['dispatchInfo', 'matchActions', 'dispatchInfo'],
                 ifKeyIn: ['subtree', 'attributes', 'characterData', 'childList'],
-            }
+            },
+            onWatchForBs: 'forBs',
         }
     },
     complexPropDefaults: {
