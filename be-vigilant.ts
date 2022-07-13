@@ -7,29 +7,34 @@ export class BeVigilantController implements BeVigilantActions{
     #target: Element | undefined;
     #mutationObserver: MutationObserver | undefined;
 
-    async attachBehiviors(){
-        const beHive = (this.#target!.getRootNode() as DocumentFragment).querySelector('be-hive');
-        if(beHive === null) return;
-        const beDecoratedProps = Array.from(beHive.children) as any as BeDecoratedProps[];
-        for(const beDecor of beDecoratedProps){
-            const el = beDecor as any as Element;
-            await customElements.whenDefined(el.localName);
-            const matches = Array.from(this.#target!.querySelectorAll(`${beDecor.upgrade}[be-${beDecor.ifWantsToBe}],${beDecor.upgrade}[data-be-${beDecor.ifWantsToBe}]`));
+    // async attachBehiviors(){
+    //     const beHive = (this.#target!.getRootNode() as DocumentFragment).querySelector('be-hive');
+    //     if(beHive === null) return;
+    //     const beDecoratedProps = Array.from(beHive.children) as any as BeDecoratedProps[];
+    //     for(const beDecor of beDecoratedProps){
+    //         const el = beDecor as any as Element;
+    //         await customElements.whenDefined(el.localName);
+    //         const matches = Array.from(this.#target!.querySelectorAll(`${beDecor.upgrade}[be-${beDecor.ifWantsToBe}],${beDecor.upgrade}[data-be-${beDecor.ifWantsToBe}]`));
             
-            for(const match of matches){
-                const data = match.hasAttribute(`data-be-${beDecor.ifWantsToBe}`) ? 'data-' : '';
-                const attrVal = match.getAttribute(`${data}be-${beDecor.ifWantsToBe}`);
-                match.setAttribute(`${data}is-${beDecor.ifWantsToBe}`, attrVal!);
-                match.removeAttribute(`${data}be-${beDecor.ifWantsToBe}`);
-                beDecor.newTarget = match;
-            }
-        }
-    }
+    //         for(const match of matches){
+    //             const data = match.hasAttribute(`data-be-${beDecor.ifWantsToBe}`) ? 'data-' : '';
+    //             const attrVal = match.getAttribute(`${data}be-${beDecor.ifWantsToBe}`);
+    //             match.setAttribute(`${data}is-${beDecor.ifWantsToBe}`, attrVal!);
+    //             match.removeAttribute(`${data}be-${beDecor.ifWantsToBe}`);
+    //             beDecor.newTarget = match;
+    //         }
+    //     }
+    // }
 
     
     intro(proxy: Element & BeVigilantVirtualProps, target: Element, beDecor: BeDecoratedProps){
         this.#target = target;
-        this.attachBehiviors();
+        //this.attachBehiviors();
+    }
+
+    async onWatchForBs(self: this) {
+        const {attachBehiviors} = await import('./attachBehiviors.js');
+        await attachBehiviors(this.#target!);
     }
 
     addObserver({}: this){
@@ -39,31 +44,39 @@ export class BeVigilantController implements BeVigilantActions{
         this.callback([], this.#mutationObserver);//notify subscribers that the observer is ready
     }
 
-    callback = (mutationList: MutationRecord[], observer: MutationObserver) => {
+    callback = async (mutationList: MutationRecord[], observer: MutationObserver) => {
         for(const mut of mutationList){
             const addedNodes = Array.from(mut.addedNodes);
-            let foundBeHiveElement = false;
-            for(const addedNode of addedNodes){
-                if(addedNode.nodeType === Node.ELEMENT_NODE){
-                    const attrs = (addedNode as Element).attributes;
-                    for(let i = 0, ii = attrs.length; i < ii; i++){
-                        const attr = attrs[i];
-                        if(attr.name.startsWith('be-') || attr.name.startsWith('data-be-')){
-                            foundBeHiveElement = true;
-                            break;
+            if(this.proxy.forBs){
+                let foundBeHiveElement = false;
+                for(const addedNode of addedNodes){
+                    if(addedNode.nodeType === Node.ELEMENT_NODE){
+                        const attrs = (addedNode as Element).attributes;
+                        for(let i = 0, ii = attrs.length; i < ii; i++){
+                            const attr = attrs[i];
+                            if(attr.name.startsWith('be-') || attr.name.startsWith('data-be-')){
+                                foundBeHiveElement = true;
+                                break;
+                            }
                         }
+    
                     }
                 }
+                if(foundBeHiveElement){
+                    const {attachBehiviors} = await import('./attachBehiviors.js');
+                    await attachBehiviors(this.#target!);
+                }
             }
-            if(foundBeHiveElement){
-                this.attachBehiviors();
-            }
+
         }
-        this.#target!.dispatchEvent(new CustomEvent(this.asType, {
-            detail: {
-                mutationList,
-            }
-        }));
+        if(this.dispatchInfo){
+            this.#target!.dispatchEvent(new CustomEvent(this.dispatchInfo, {
+                detail: {
+                    mutationList,
+                }
+            }));
+        }
+
     }
 
     removeObserver({}: this){
@@ -96,18 +109,19 @@ define<BeVigilantProps & BeDecoratedProps<BeVigilantProps, BeVigilantActions>, B
             ifWantsToBe,
             upgrade,
             intro: 'intro',
-            virtualProps: ['subtree', 'attributes', 'characterData', 'childList', 'asType'],
+            virtualProps: ['subtree', 'attributes', 'characterData', 'childList', 'dispatchInfo', 'forBs', 'matchActions'],
             primaryProp: 'asType',
             proxyPropDefaults:{
                 childList: true,
-                asType: 'be-vigilant-changed',
+                dispatchInfo: 'be-vigilant-changed',
             }
         },
         actions:{
             addObserver: {
-                ifAllOf: ['asType'],
+                ifAllOf: ['dispatchInfo'],
                 ifKeyIn: ['subtree', 'attributes', 'characterData', 'childList'],
-            }
+            },
+            onWatchForBs: 'forBs',
         }
     },
     complexPropDefaults:{
