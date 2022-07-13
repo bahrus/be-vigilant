@@ -91,7 +91,7 @@ define<BeVigilantProps & BeDecoratedProps<BeVigilantProps, BeVigilantActions>, B
             upgrade,
             intro: 'intro',
             virtualProps: ['subtree', 'attributes', 'characterData', 'childList', 'dispatchInfo', 'forBs', 'matchActions'],
-            primaryProp: 'asType',
+            primaryProp: 'dispatchInfo',
             proxyPropDefaults:{
                 childList: true,
                 dispatchInfo: 'be-vigilant-changed',
