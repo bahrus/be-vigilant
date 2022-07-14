@@ -27,9 +27,9 @@
     "be-hive": "0.0.36"
   },
   "devDependencies": {
-    "may-it-serve": "0.0.0",
+    "may-it-serve": "0.0.1",
     "@skypack/package-check": "0.2.2",
-    "@custom-elements-manifest/analyzer": "0.5.7"
+    "@custom-elements-manifest/analyzer": "0.6.3"
   },
   "repository": {
     "type": "git",
