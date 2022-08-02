@@ -1,8 +1,10 @@
 # be-vigilant
 
+<a href="https://nodei.co/npm/be-vigilant/"><img src="https://nodei.co/npm/be-vigilant.png"></a>
+
 Add mutation observer to element.
 
-Use case:  Many UI libraries are built around communicating between elements via events.  be-vigilant translates mutation changes into events.
+Use case I:  Many UI libraries are built around communicating between elements via events.  be-vigilant translates mutation changes into events.
 
 ```html
 <div be-vigilant=my-event-name>
@@ -14,7 +16,7 @@ Event my-event-name is fired from the div element when the direct children of th
 
 If the value of the attribute isn't specified, the default event name is be-vigilant-changed.
 
-be-vigilant also provides a brute-force way of registering be-decorated elements that, due to css oddities, aren't always picked up.
+Use case II:  be-vigilant also provides a brute-force way of sniffing out [be-decorated](https://github.com/bahrus/be-decorated) adorned elements, even behind nooks and crannies HTML.  be-decorated behaviors search for elements based on css observing, but sometimes those aren't always picked up.
 
 For example:
 
@@ -46,4 +48,6 @@ To fine tune how the mutation observer is configured:
 ...
 </div>
 ```
+
+Another option, matchActions, provides the ability to specify different event names, based on css match tests on the mutated elements.
 
