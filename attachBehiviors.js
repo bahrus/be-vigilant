@@ -1,4 +1,4 @@
-export async function attachBehiviors(target) {
+export async function attachBehiviors(target, mutationSettings) {
     const beHive = target.getRootNode().querySelector('be-hive');
     if (beHive === null)
         return;
@@ -14,5 +14,11 @@ export async function attachBehiviors(target) {
             match.removeAttribute(`${data}be-${beDecor.ifWantsToBe}`);
             beDecor.newTargets = [...beDecor.newTargets, match];
         }
+    }
+    if (mutationSettings !== undefined) {
+        const mutationObserver = new MutationObserver((mr) => {
+            attachBehiviors(target);
+        });
+        mutationObserver.observe(target, mutationSettings);
     }
 }

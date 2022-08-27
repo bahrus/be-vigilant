@@ -1,6 +1,6 @@
 import {BeDecoratedProps } from 'be-decorated/be-decorated.js';
 
-export async  function attachBehiviors(target: Element){
+export async  function attachBehiviors(target: Element, mutationSettings?: MutationObserverInit){
     const beHive = (target.getRootNode() as DocumentFragment).querySelector('be-hive');
     if(beHive === null) return;
     const beDecoratedProps = Array.from(beHive.children) as any as BeDecoratedProps[];
@@ -16,4 +16,11 @@ export async  function attachBehiviors(target: Element){
             beDecor.newTargets = [...beDecor.newTargets, match];
         }
     }
+    if(mutationSettings !== undefined){
+        const mutationObserver = new MutationObserver((mr: MutationRecord[]) => {
+            attachBehiviors(target);
+        });
+        mutationObserver.observe(target, mutationSettings);
+    }
+    
 }
