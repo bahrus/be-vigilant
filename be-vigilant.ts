@@ -4,25 +4,18 @@ import {register} from 'be-hive/register.js';
 
 
 export class BeVigilantController implements BeVigilantActions{
-    #target: Element | undefined;
     #mutationObserver: MutationObserver | undefined;
-
-    
-    intro(proxy: Element & BeVigilantVirtualProps, target: Element, beDecor: BeDecoratedProps){
-        this.#target = target;
-    }
-
-    async onWatchForBs(self: this) {
+    async onWatchForBs({proxy}: this) {
         const {attachBehiviors} = await import('./attachBehiviors.js');
-        await attachBehiviors(this.#target!);
+        await attachBehiviors(proxy.self);
     }
 
 
-    addObserver({dispatchInfo, matchActions}: this){
+    addObserver({dispatchInfo, matchActions, proxy}: this){
         if(!dispatchInfo && !matchActions) return;
         this.removeObserver(this);
         this.#mutationObserver = new MutationObserver(this.callback);
-        this.#mutationObserver.observe(this.#target!, this as MutationObserverInit);
+        this.#mutationObserver.observe(proxy.self!, this as MutationObserverInit);
         this.callback([], this.#mutationObserver);//notify subscribers that the observer is ready
     }
 
@@ -31,7 +24,7 @@ export class BeVigilantController implements BeVigilantActions{
             
             if(this.proxy.forBs){
                 const {attachBehiviors} = await import('./attachBehiviors.js');
-                await attachBehiviors(this.#target!);
+                await attachBehiviors(this.proxy.self!);
             }
             const {matchActions} = this;
             if(matchActions){
@@ -51,7 +44,7 @@ export class BeVigilantController implements BeVigilantActions{
 
         }
         if(this.dispatchInfo){
-            this.#target!.dispatchEvent(new CustomEvent(this.dispatchInfo, {
+            this.proxy.self.dispatchEvent(new CustomEvent(this.dispatchInfo, {
                 detail: {
                     mutationList,
                 }
@@ -71,7 +64,6 @@ export class BeVigilantController implements BeVigilantActions{
 
     finale(proxy: Element & BeVigilantVirtualProps, target: Element, beDecor: BeDecoratedProps){
         this.removeObserver(this);
-        this.#target = undefined;
     }
 }
 
@@ -90,7 +82,6 @@ define<BeVigilantProps & BeDecoratedProps<BeVigilantProps, BeVigilantActions>, B
         propDefaults:{
             ifWantsToBe,
             upgrade,
-            intro: 'intro',
             virtualProps: ['subtree', 'attributes', 'characterData', 'childList', 'dispatchInfo', 'forBs', 'matchActions'],
             primaryProp: 'dispatchInfo',
             proxyPropDefaults:{

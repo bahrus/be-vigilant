@@ -1,28 +1,24 @@
 import { define } from 'be-decorated/be-decorated.js';
 import { register } from 'be-hive/register.js';
 export class BeVigilantController {
-    #target;
     #mutationObserver;
-    intro(proxy, target, beDecor) {
-        this.#target = target;
-    }
-    async onWatchForBs(self) {
+    async onWatchForBs({ proxy }) {
         const { attachBehiviors } = await import('./attachBehiviors.js');
-        await attachBehiviors(this.#target);
+        await attachBehiviors(proxy.self);
     }
-    addObserver({ dispatchInfo, matchActions }) {
+    addObserver({ dispatchInfo, matchActions, proxy }) {
         if (!dispatchInfo && !matchActions)
             return;
         this.removeObserver(this);
         this.#mutationObserver = new MutationObserver(this.callback);
-        this.#mutationObserver.observe(this.#target, this);
+        this.#mutationObserver.observe(proxy.self, this);
         this.callback([], this.#mutationObserver); //notify subscribers that the observer is ready
     }
     callback = async (mutationList, observer) => {
         for (const mut of mutationList) {
             if (this.proxy.forBs) {
                 const { attachBehiviors } = await import('./attachBehiviors.js');
-                await attachBehiviors(this.#target);
+                await attachBehiviors(this.proxy.self);
             }
             const { matchActions } = this;
             if (matchActions) {
@@ -40,7 +36,7 @@ export class BeVigilantController {
             }
         }
         if (this.dispatchInfo) {
-            this.#target.dispatchEvent(new CustomEvent(this.dispatchInfo, {
+            this.proxy.self.dispatchEvent(new CustomEvent(this.dispatchInfo, {
                 detail: {
                     mutationList,
                 }
@@ -56,7 +52,6 @@ export class BeVigilantController {
     }
     finale(proxy, target, beDecor) {
         this.removeObserver(this);
-        this.#target = undefined;
     }
 }
 const tagName = 'be-vigilant';
@@ -68,7 +63,6 @@ define({
         propDefaults: {
             ifWantsToBe,
             upgrade,
-            intro: 'intro',
             virtualProps: ['subtree', 'attributes', 'characterData', 'childList', 'dispatchInfo', 'forBs', 'matchActions'],
             primaryProp: 'dispatchInfo',
             proxyPropDefaults: {

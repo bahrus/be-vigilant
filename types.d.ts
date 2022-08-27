@@ -1,6 +1,6 @@
-import {BeDecoratedProps} from 'be-decorated/types';
+import {BeDecoratedProps, MinimalProxy} from 'be-decorated/types';
 
-export interface BeVigilantVirtualProps extends MutationObserverInit {
+export interface BeVigilantVirtualProps extends MutationObserverInit, MinimalProxy {
     /**
      * Name of event to emit / dispatch when content mutates
      */
@@ -18,7 +18,6 @@ export interface MatchAction{
 }
 
 export interface BeVigilantActions{
-    intro(proxy: Element & BeVigilantVirtualProps, target: Element, beDecor: BeDecoratedProps): void;
     onWatchForBs(self: this): void;
     addObserver(self: this): void;
     removeObserver(self: this): void;

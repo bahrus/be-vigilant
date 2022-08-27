@@ -2,6 +2,10 @@
 
 <a href="https://nodei.co/npm/be-vigilant/"><img src="https://nodei.co/npm/be-vigilant.png"></a>
 
+[![How big is this package in your project?](https://img.shields.io/bundlephobia/minzip/be-vigilant?style=for-the-badge)](https://bundlephobia.com/result?p=be-vigilant)
+
+<img src="http://img.badgesize.io/https://cdn.jsdelivr.net/npm/be-vigilant?compression=gzip">
+
 Add mutation observer to element.
 
 Use case I:  Many UI libraries are built around communicating between elements via events.  be-vigilant translates mutation changes into events.
@@ -16,7 +20,7 @@ Event my-event-name is fired from the div element when the direct children of th
 
 If the value of the attribute isn't specified, the default event name is be-vigilant-changed.
 
-Use case II:  be-vigilant also provides a brute-force way of sniffing out [be-decorated](https://github.com/bahrus/be-decorated) adorned elements, even behind nooks and crannies HTML.  be-decorated behaviors search for elements based on css observing, but sometimes those aren't always picked up.
+Use case II:  be-vigilant also provides a brute-force way of sniffing out [be-decorated](https://github.com/bahrus/be-decorated) adorned elements, even behind nooks and crannies of the DOM.  be-decorated behaviors search for elements based on css observing, but sometimes those aren't always picked up.
 
 For example:
 
