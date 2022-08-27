@@ -23,13 +23,13 @@
     "serve": "node node_modules/may-it-serve/serve.js"
   },
   "dependencies": {
-    "be-decorated": "0.0.125",
-    "be-hive": "0.0.48"
+    "be-decorated": "0.0.144",
+    "be-hive": "0.0.56"
   },
   "devDependencies": {
-    "may-it-serve": "0.0.1",
+    "may-it-serve": "0.0.2",
     "@skypack/package-check": "0.2.2",
-    "@custom-elements-manifest/analyzer": "0.6.3"
+    "@custom-elements-manifest/analyzer": "0.6.4"
   },
   "repository": {
     "type": "git",

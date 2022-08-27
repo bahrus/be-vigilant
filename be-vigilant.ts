@@ -18,7 +18,8 @@ export class BeVigilantController implements BeVigilantActions{
     }
 
 
-    addObserver({}: this){
+    addObserver({dispatchInfo, matchActions}: this){
+        if(!dispatchInfo && !matchActions) return;
         this.removeObserver(this);
         this.#mutationObserver = new MutationObserver(this.callback);
         this.#mutationObserver.observe(this.#target!, this as MutationObserverInit);
@@ -99,8 +100,7 @@ define<BeVigilantProps & BeDecoratedProps<BeVigilantProps, BeVigilantActions>, B
         },
         actions:{
             addObserver: {
-                ifAtLeastOneOf: ['dispatchInfo', 'matchActions', 'dispatchInfo'],
-                ifKeyIn: ['subtree', 'attributes', 'characterData', 'childList'],
+                ifKeyIn: ['subtree', 'attributes', 'characterData', 'childList', 'dispatchInfo', 'matchActions'],
             },
             onWatchForBs: 'forBs',
         }

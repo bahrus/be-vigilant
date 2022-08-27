@@ -12,7 +12,7 @@ export async function attachBehiviors(target) {
             const attrVal = match.getAttribute(`${data}be-${beDecor.ifWantsToBe}`);
             match.setAttribute(`${data}is-${beDecor.ifWantsToBe}`, attrVal);
             match.removeAttribute(`${data}be-${beDecor.ifWantsToBe}`);
-            beDecor.newTarget = match;
+            beDecor.newTargets = [...beDecor.newTargets, match];
         }
     }
 }

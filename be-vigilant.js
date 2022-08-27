@@ -10,7 +10,9 @@ export class BeVigilantController {
         const { attachBehiviors } = await import('./attachBehiviors.js');
         await attachBehiviors(this.#target);
     }
-    addObserver({}) {
+    addObserver({ dispatchInfo, matchActions }) {
+        if (!dispatchInfo && !matchActions)
+            return;
         this.removeObserver(this);
         this.#mutationObserver = new MutationObserver(this.callback);
         this.#mutationObserver.observe(this.#target, this);
@@ -76,8 +78,7 @@ define({
         },
         actions: {
             addObserver: {
-                ifAtLeastOneOf: ['dispatchInfo', 'matchActions', 'dispatchInfo'],
-                ifKeyIn: ['subtree', 'attributes', 'characterData', 'childList'],
+                ifKeyIn: ['subtree', 'attributes', 'characterData', 'childList', 'dispatchInfo', 'matchActions'],
             },
             onWatchForBs: 'forBs',
         }

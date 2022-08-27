@@ -8,13 +8,12 @@ export async  function attachBehiviors(target: Element){
         const el = beDecor as any as Element;
         await customElements.whenDefined(el.localName);
         const matches = Array.from(target.querySelectorAll(`${beDecor.upgrade}[be-${beDecor.ifWantsToBe}],${beDecor.upgrade}[data-be-${beDecor.ifWantsToBe}]`));
-        
         for(const match of matches){
             const data = match.hasAttribute(`data-be-${beDecor.ifWantsToBe}`) ? 'data-' : '';
             const attrVal = match.getAttribute(`${data}be-${beDecor.ifWantsToBe}`);
             match.setAttribute(`${data}is-${beDecor.ifWantsToBe}`, attrVal!);
             match.removeAttribute(`${data}be-${beDecor.ifWantsToBe}`);
-            beDecor.newTarget = match;
+            beDecor.newTargets = [...beDecor.newTargets, match];
         }
     }
 }
