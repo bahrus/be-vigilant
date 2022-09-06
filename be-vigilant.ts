@@ -1,32 +1,33 @@
 import {define, BeDecoratedProps } from 'be-decorated/be-decorated.js';
-import {BeVigilantActions, BeVigilantProps, BeVigilantVirtualProps} from './types';
+import {Actions, Proxy, PP, VirtualProps, Controller} from './types';
 import {register} from 'be-hive/register.js';
 
 
-export class BeVigilantController implements BeVigilantActions{
+export class BeVigilant implements Actions{
     #mutationObserver: MutationObserver | undefined;
-    async onWatchForBs({proxy}: this) {
+    async onWatchForBs({proxy}: PP) {
         const {attachBehiviors} = await import('./attachBehiviors.js');
         await attachBehiviors(proxy.self);
     }
 
 
-    addObserver({dispatchInfo, matchActions, proxy}: this){
+    addObserver({dispatchInfo, matchActions, proxy}: PP){
         if(!dispatchInfo && !matchActions) return;
-        this.removeObserver(this);
+        this.removeObserver();
         this.#mutationObserver = new MutationObserver(this.callback);
         this.#mutationObserver.observe(proxy.self!, this as MutationObserverInit);
         this.callback([], this.#mutationObserver);//notify subscribers that the observer is ready
     }
 
     callback = async (mutationList: MutationRecord[], observer: MutationObserver) => {
+        const {matchActions, dispatchInfo} = this.proxy;
         for(const mut of mutationList){
             
             if(this.proxy.forBs){
                 const {attachBehiviors} = await import('./attachBehiviors.js');
                 await attachBehiviors(this.proxy.self!);
             }
-            const {matchActions} = this;
+            
             if(matchActions){
                 const addedNodes = Array.from(mut.addedNodes) as Element[];
                 for(const node of addedNodes){
@@ -43,8 +44,8 @@ export class BeVigilantController implements BeVigilantActions{
             }
 
         }
-        if(this.dispatchInfo){
-            this.proxy.self.dispatchEvent(new CustomEvent(this.dispatchInfo, {
+        if(dispatchInfo){
+            this.proxy.self.dispatchEvent(new CustomEvent(dispatchInfo, {
                 detail: {
                     mutationList,
                 }
@@ -54,7 +55,7 @@ export class BeVigilantController implements BeVigilantActions{
 
     }
 
-    removeObserver({}: this){
+    removeObserver(){
         if(!this.#mutationObserver){
             return;
         }
@@ -62,12 +63,12 @@ export class BeVigilantController implements BeVigilantActions{
         this.#mutationObserver = undefined;
     }
 
-    finale(proxy: Element & BeVigilantVirtualProps, target: Element, beDecor: BeDecoratedProps){
-        this.removeObserver(this);
+    finale(proxy: Proxy, target: Element, beDecor: BeDecoratedProps){
+        this.removeObserver();
     }
 }
 
-export interface BeVigilantController extends BeVigilantProps{}
+export interface BeVigilant extends Controller{}
 
 const tagName = 'be-vigilant';
 
@@ -76,7 +77,7 @@ const ifWantsToBe = 'vigilant';
 const upgrade = '*';
 
 
-define<BeVigilantProps & BeDecoratedProps<BeVigilantProps, BeVigilantActions>, BeVigilantActions>({
+define<VirtualProps & BeDecoratedProps<VirtualProps, Actions>, Actions>({
     config:{
         tagName,
         propDefaults:{
@@ -97,7 +98,7 @@ define<BeVigilantProps & BeDecoratedProps<BeVigilantProps, BeVigilantActions>, B
         }
     },
     complexPropDefaults:{
-        controller: BeVigilantController,
+        controller: BeVigilant,
     }
 });
 
