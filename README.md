@@ -18,7 +18,14 @@ Use case I:  Many UI libraries are built around communicating between elements v
 
 Event my-event-name is fired from the div element when the direct children of the div element change.
 
-If the value of the attribute isn't specified, the default event name is be-vigilant-changed.
+If the value of the attribute isn't specified, the default event name is be-vigilant-changed:
+
+```html
+<div be-vigilant>
+...
+</div>
+```
+
 
 Use case II:  be-vigilant also provides a brute-force way of sniffing out [be-decorated](https://github.com/bahrus/be-decorated) adorned elements, even behind nooks and crannies of the DOM.  be-decorated behaviors search for elements based on css observing, but sometimes those aren't always picked up.
 
@@ -54,4 +61,16 @@ To fine tune how the mutation observer is configured:
 ```
 
 Another option, matchActions, provides the ability to specify different event names, based on css match tests on the mutated elements.
+
+## CDN
+
+To use from a CDN:
+
+```html
+<script type='module' crossorigin='anonymous'>
+    import 'https://esm.run/be-vigilant';
+</script>
+```
+
+
 
