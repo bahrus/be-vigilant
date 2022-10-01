@@ -1,12 +1,12 @@
 import { define } from 'be-decorated/be-decorated.js';
 import { register } from 'be-hive/register.js';
-import { BeWatching, virtualProps, doOnFor } from 'be-watching/be-watching.js';
+import { BeWatching, virtualProps, actions as BeWatchingActions } from 'be-watching/be-watching.js';
 export class BeVigilant extends BeWatching {
     async onWatchForBs({ proxy }) {
         const { attachBehiviors } = await import('./attachBehiviors.js');
         await attachBehiviors(proxy.self);
     }
-    async doAddedNode({ matchActions, forBs, self }, node) {
+    async doAddedNode({ matchActions, forBs, self, dispatchInfo }, node) {
         if (node instanceof Element) {
             for (const selector in matchActions) {
                 if (node.matches(selector)) {
@@ -18,6 +18,13 @@ export class BeVigilant extends BeWatching {
         if (forBs) {
             const { attachBehiviors } = await import('./attachBehiviors.js');
             await attachBehiviors(self);
+        }
+        if (dispatchInfo) {
+            self.dispatchEvent(new CustomEvent(dispatchInfo, {
+                detail: {
+                    node,
+                }
+            }));
         }
     }
     async doRemovedNode(pp, node) {
@@ -37,10 +44,11 @@ define({
             proxyPropDefaults: {
                 childList: true,
                 dispatchInfo: 'be-vigilant-changed',
+                for: '*',
             }
         },
         actions: {
-            ...doOnFor,
+            ...BeWatchingActions,
             onWatchForBs: 'forBs',
         }
     },

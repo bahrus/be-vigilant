@@ -1,7 +1,7 @@
 import {define, BeDecoratedProps } from 'be-decorated/be-decorated.js';
 import {Actions, Proxy, PP, VirtualProps} from './types';
 import {register} from 'be-hive/register.js';
-import {BeWatching, virtualProps, doOnFor} from 'be-watching/be-watching.js';
+import {BeWatching, virtualProps, actions as BeWatchingActions} from 'be-watching/be-watching.js';
 import { ProxyProps } from '../be-watching/types';
 
 export class BeVigilant extends BeWatching implements Actions{
@@ -11,7 +11,7 @@ export class BeVigilant extends BeWatching implements Actions{
         await attachBehiviors(proxy.self);
     }
 
-    async doAddedNode({matchActions, forBs, self}: PP, node: Node) {
+    async doAddedNode({matchActions, forBs, self, dispatchInfo}: PP, node: Node) {
         if(node instanceof Element){
             for(const selector in matchActions){
                 if(node.matches(selector)){
@@ -25,6 +25,13 @@ export class BeVigilant extends BeWatching implements Actions{
         if(forBs){
             const {attachBehiviors} = await import('./attachBehiviors.js');
             await attachBehiviors(self!);
+        }
+        if(dispatchInfo){
+            self.dispatchEvent(new CustomEvent(dispatchInfo, {
+                detail: {
+                    node,
+                }
+            }));
         }
     }
 
@@ -52,10 +59,11 @@ define<VirtualProps & BeDecoratedProps<VirtualProps, Actions>, Actions>({
             proxyPropDefaults:{
                 childList: true,
                 dispatchInfo: 'be-vigilant-changed',
+                for:'*',
             }
         },
         actions:{
-            ...doOnFor,
+            ...BeWatchingActions,
             onWatchForBs: 'forBs',
         }
     },
