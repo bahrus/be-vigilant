@@ -1,6 +1,10 @@
 import {BeDecoratedProps, MinimalProxy} from 'be-decorated/types';
+import {
+    EndUserProps as BeWatchingEndUserProps,
+    VirtualProps as BeWatchingVirtualProps,
+} from 'be-watching/types';
 
-export interface EndUserProps extends MutationObserverInit {
+export interface EndUserProps extends BeWatchingEndUserProps {
     /**
      * Name of event to emit / dispatch when content mutates
      */
@@ -9,8 +13,7 @@ export interface EndUserProps extends MutationObserverInit {
      matchActions?: {[key: string]: MatchAction};
 }
 
-export interface VirtualProps extends EndUserProps, MinimalProxy {
-}
+export interface VirtualProps extends EndUserProps, BeWatchingVirtualProps {}
 
 export type Proxy = Element & VirtualProps;
 
@@ -26,11 +29,4 @@ export interface MatchAction{
 
 export interface Actions{
     onWatchForBs(pp: PP): void;
-    addObserver(pp: PP): void;
-    removeObserver(): void;
-    finale(proxy: Proxy, target: Element, beDecor: BeDecoratedProps): void;
-}
-
-export interface Controller{
-    proxy: Proxy;
 }

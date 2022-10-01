@@ -1,74 +1,38 @@
 import {define, BeDecoratedProps } from 'be-decorated/be-decorated.js';
-import {Actions, Proxy, PP, VirtualProps, Controller} from './types';
+import {Actions, Proxy, PP, VirtualProps} from './types';
 import {register} from 'be-hive/register.js';
+import {BeWatching, virtualProps, doOnFor} from 'be-watching/be-watching.js';
+import { ProxyProps } from '../be-watching/types';
 
-
-export class BeVigilant implements Actions{
-    #mutationObserver: MutationObserver | undefined;
+export class BeVigilant extends BeWatching implements Actions{
+    
     async onWatchForBs({proxy}: PP) {
         const {attachBehiviors} = await import('./attachBehiviors.js');
         await attachBehiviors(proxy.self);
     }
 
+    async doAddedNode({matchActions, forBs, self}: PP, node: Node) {
+        if(node instanceof Element){
+            for(const selector in matchActions){
+                if(node.matches(selector)){
+                    const match = matchActions[selector];
+                    node.dispatchEvent(new CustomEvent(match.dispatchInfo, {
 
-    addObserver({dispatchInfo, matchActions, proxy}: PP){
-        if(!dispatchInfo && !matchActions) return;
-        this.removeObserver();
-        this.#mutationObserver = new MutationObserver(this.callback);
-        this.#mutationObserver.observe(proxy.self!, this as MutationObserverInit);
-        this.callback([], this.#mutationObserver);//notify subscribers that the observer is ready
+                    }));
+                }
+            }
+        }
+        if(forBs){
+            const {attachBehiviors} = await import('./attachBehiviors.js');
+            await attachBehiviors(self!);
+        }
     }
 
-    callback = async (mutationList: MutationRecord[], observer: MutationObserver) => {
-        const {matchActions, dispatchInfo} = this.proxy;
-        for(const mut of mutationList){
-            
-            if(this.proxy.forBs){
-                const {attachBehiviors} = await import('./attachBehiviors.js');
-                await attachBehiviors(this.proxy.self!);
-            }
-            
-            if(matchActions){
-                const addedNodes = Array.from(mut.addedNodes) as Element[];
-                for(const node of addedNodes){
-                    if(!node.dispatchEvent) continue;
-                    for(const selector in matchActions){
-                        if(node.matches(selector)){
-                            const match = matchActions[selector];
-                            node.dispatchEvent(new CustomEvent(match.dispatchInfo, {
-
-                            }));
-                        }
-                    }
-                }
-            }
-
-        }
-        if(dispatchInfo){
-            this.proxy.self.dispatchEvent(new CustomEvent(dispatchInfo, {
-                detail: {
-                    mutationList,
-                }
-            }));
-        }
+    async doRemovedNode(pp: ProxyProps, node: Node) {
         
-
     }
 
-    removeObserver(){
-        if(!this.#mutationObserver){
-            return;
-        }
-        this.#mutationObserver.disconnect();
-        this.#mutationObserver = undefined;
-    }
-
-    finale(proxy: Proxy, target: Element, beDecor: BeDecoratedProps){
-        this.removeObserver();
-    }
 }
-
-export interface BeVigilant extends Controller{}
 
 const tagName = 'be-vigilant';
 
@@ -83,7 +47,7 @@ define<VirtualProps & BeDecoratedProps<VirtualProps, Actions>, Actions>({
         propDefaults:{
             ifWantsToBe,
             upgrade,
-            virtualProps: ['subtree', 'attributes', 'characterData', 'childList', 'dispatchInfo', 'forBs', 'matchActions'],
+            virtualProps: [...virtualProps, 'dispatchInfo', 'forBs', 'matchActions'],
             primaryProp: 'dispatchInfo',
             proxyPropDefaults:{
                 childList: true,
@@ -91,9 +55,7 @@ define<VirtualProps & BeDecoratedProps<VirtualProps, Actions>, Actions>({
             }
         },
         actions:{
-            addObserver: {
-                ifKeyIn: ['subtree', 'attributes', 'characterData', 'childList', 'dispatchInfo', 'matchActions'],
-            },
+            ...doOnFor,
             onWatchForBs: 'forBs',
         }
     },
