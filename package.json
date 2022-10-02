@@ -1,7 +1,7 @@
 {
   "name": "be-vigilant",
   "version": "0.0.19",
-  "description": "",
+  "description": "Add mutation observer to element, and broadcast mutations.",
   "main": "be-vigilant.js",
   "module": "be-vigilant.js",
   "exports": {
@@ -14,8 +14,7 @@
   "types": "types.d.ts",
   "keywords": [
     "web-components",
-    "custom-elements",
-    "xslt"
+    "custom-elements"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -23,7 +22,7 @@
     "serve": "node node_modules/may-it-serve/serve.js"
   },
   "dependencies": {
-    "be-watching": "0.0.2",
+    "be-watching": "0.0.4",
     "be-hive": "0.0.68"
   },
   "devDependencies": {

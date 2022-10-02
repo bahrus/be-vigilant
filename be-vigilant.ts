@@ -1,8 +1,7 @@
 import {define, BeDecoratedProps } from 'be-decorated/be-decorated.js';
 import {Actions, Proxy, PP, VirtualProps} from './types';
 import {register} from 'be-hive/register.js';
-import {BeWatching, virtualProps, actions as BeWatchingActions} from 'be-watching/be-watching.js';
-import { ProxyProps } from '../be-watching/types';
+import {defaultProps, BeWatching, virtualProps, actions as BeWatchingActions} from 'be-watching/be-watching.js';
 
 export class BeVigilant extends BeWatching implements Actions{
     
@@ -35,7 +34,7 @@ export class BeVigilant extends BeWatching implements Actions{
         }
     }
 
-    async doRemovedNode(pp: ProxyProps, node: Node) {
+    async doRemovedNode(pp: PP, node: Node) {
         
     }
 
@@ -48,7 +47,7 @@ const ifWantsToBe = 'vigilant';
 const upgrade = '*';
 
 
-define<VirtualProps & BeDecoratedProps<VirtualProps, Actions>, Actions>({
+define<Proxy & BeDecoratedProps<Proxy, Actions>, Actions>({
     config:{
         tagName,
         propDefaults:{
@@ -57,6 +56,9 @@ define<VirtualProps & BeDecoratedProps<VirtualProps, Actions>, Actions>({
             virtualProps: [...virtualProps, 'dispatchInfo', 'forBs', 'matchActions'],
             primaryProp: 'dispatchInfo',
             proxyPropDefaults:{
+                ...defaultProps,
+                beVigilant: true,
+                doInit: true,
                 childList: true,
                 dispatchInfo: 'be-vigilant-changed',
                 for:'*',
