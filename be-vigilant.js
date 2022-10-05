@@ -47,7 +47,7 @@ define({
                 doInit: true,
                 childList: true,
                 dispatchInfo: 'be-vigilant-changed',
-                for: '*',
+                forAll: '*',
             }
         },
         actions: {

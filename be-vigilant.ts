@@ -61,7 +61,7 @@ define<Proxy & BeDecoratedProps<Proxy, Actions>, Actions>({
                 doInit: true,
                 childList: true,
                 dispatchInfo: 'be-vigilant-changed',
-                for:'*',
+                forAll:'*',
             }
         },
         actions:{
