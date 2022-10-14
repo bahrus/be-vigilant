@@ -1,6 +1,6 @@
 {
   "name": "be-vigilant",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "description": "Add mutation observer to element, and broadcast mutations.",
   "main": "be-vigilant.js",
   "module": "be-vigilant.js",
