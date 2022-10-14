@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id=test be-vigilant=my-event-name></div>
+    <script>
+        test.addEventListener('my-event-name', e => {
+            console.log(e.detail);
+            target.setAttribute('mark', 'good');
+        });
+    </script>
+    <button id=btn onclick="addChild()">addChild</button>
+    <div id=target></div>
+    <script>
+        function addChild() {
+            var div = document.createElement('div');
+            div.innerHTML = '<div>child</div>';
+            test.appendChild(div);
+        }
+    </script>
+    <script type=importmap>
+        {
+            "imports": {
+                "trans-render/": "../node_modules/trans-render/",
+                "xtal-element/": "../node_modules/xtal-element/",
+                "be-decorated/": "../node_modules/be-decorated/",
+                "be-hive/": "../node_modules/be-hive/",
+                "be-watching/": "../node_modules/be-watching/"
+            }
+        }
+    </script>
+    <script type=module>
+        import '../be-vigilant.js';
+    </script>
+    <script>
+        function runTest(){
+            btn.click();
+        }
+        setTimeout(() => {
+            runTest();
+        }, 2000)
+    </script>
+</body>
+</html>

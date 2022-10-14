@@ -17,7 +17,7 @@
     "custom-elements"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "playwright test",
     "package-check": "package-check",
     "serve": "node node_modules/may-it-serve/serve.js"
   },
@@ -28,6 +28,7 @@
   "devDependencies": {
     "may-it-serve": "0.0.3",
     "@skypack/package-check": "0.2.2",
+    "@playwright/test": "1.27.1",
     "@custom-elements-manifest/analyzer": "0.6.4"
   },
   "repository": {
