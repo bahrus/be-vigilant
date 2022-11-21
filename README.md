@@ -3,10 +3,13 @@
 Add mutation observer to element.
 
 [![Playwright Tests](https://github.com/bahrus/be-vigilant/actions/workflows/CI.yml/badge.svg?branch=baseline)](https://github.com/bahrus/be-vigilant/actions/workflows/CI.yml)
+[![NPM version](https://badge.fury.io/js/be-vigilant.png)](http://badge.fury.io/js/be-vigilant)
 
-<a href="https://nodei.co/npm/be-vigilant/"><img src="https://nodei.co/npm/be-vigilant.png"></a>
+Size, including be-decorated framework:
 
 [![How big is this package in your project?](https://img.shields.io/bundlephobia/minzip/be-vigilant?style=for-the-badge)](https://bundlephobia.com/result?p=be-vigilant)
+
+Size of new code:
 
 <img src="http://img.badgesize.io/https://cdn.jsdelivr.net/npm/be-vigilant?compression=gzip">
 
